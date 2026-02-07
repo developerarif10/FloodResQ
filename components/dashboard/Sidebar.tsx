@@ -60,7 +60,7 @@ export function Sidebar() {
           Critical Zones
         </Link>
         <Link
-          href="#"
+          href="/dashboard/volunteers"
           className="flex items-center gap-3 px-3 py-2 text-sm font-medium text-slate-600 hover:bg-slate-50 hover:text-slate-900 rounded-md"
         >
           <Users size={20} />
