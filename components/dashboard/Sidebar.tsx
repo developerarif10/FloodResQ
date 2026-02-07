@@ -1,5 +1,3 @@
-"use client";
-
 import {
   LayoutDashboard,
   MapPin,
@@ -48,7 +46,7 @@ export function Sidebar() {
           Inventory
         </Link>
         <Link
-          href="#"
+          href="/dashboard/logistics"
           className="flex items-center gap-3 px-3 py-2 text-sm font-medium text-slate-600 hover:bg-slate-50 hover:text-slate-900 rounded-md"
         >
           <Truck size={20} />
