@@ -34,14 +34,14 @@ export function Sidebar() {
 
       <div className="flex-1 overflow-y-auto py-6 px-3 space-y-1">
         <Link
-          href="#"
+          href="/dashboard"
           className="flex items-center gap-3 px-3 py-2 text-sm font-medium bg-slate-100 text-slate-900 rounded-md"
         >
           <LayoutDashboard size={20} />
           Situation Room
         </Link>
         <Link
-          href="#"
+          href="/dashboard/inventory"
           className="flex items-center gap-3 px-3 py-2 text-sm font-medium text-slate-600 hover:bg-slate-50 hover:text-slate-900 rounded-md"
         >
           <Package size={20} />
