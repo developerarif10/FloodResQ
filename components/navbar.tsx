@@ -12,7 +12,7 @@ export function Navbar() {
         <div className="flex items-center gap-2">
            <Link href="/" className="text-xl font-black tracking-tighter text-slate-900 flex items-center gap-2">
             <div className="w-8 h-8 bg-slate-900 rounded-lg flex items-center justify-center text-white">
-                <span className="font-bold">R</span>
+                <span className="font-bold">F</span>
             </div>
             FloodResQ
            </Link>
