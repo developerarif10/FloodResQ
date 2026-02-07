@@ -1,7 +1,7 @@
 'use client'
 
+import { BarChart3, MapPin, Smartphone } from 'lucide-react'
 import { Card } from './ui/card'
-import { MapPin, BarChart3, Zap, Smartphone } from 'lucide-react'
 
 export function BentoGrid() {
   return (
@@ -9,7 +9,7 @@ export function BentoGrid() {
       <div className="max-w-6xl mx-auto">
         {/* Section header */}
         <div className="mb-16">
-          <h2 className="text-4xl md:text-5xl font-black text-slate-900 mb-6">Why ReliefOps</h2>
+          <h2 className="text-4xl md:text-5xl font-black text-slate-900 mb-6">Why FloodResQ</h2>
           <p className="text-lg text-slate-600 max-w-2xl">
             A modular, open-source platform designed specifically for disaster coordination with offline-first capabilities.
           </p>

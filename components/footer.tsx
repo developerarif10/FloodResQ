@@ -7,7 +7,7 @@ export function Footer() {
         <div className="flex flex-col md:flex-row items-center justify-between gap-8">
           {/* Left: Project info */}
           <div className="text-center md:text-left">
-            <p className="font-black text-lg text-slate-100">ReliefOps</p>
+            <p className="font-black text-lg text-slate-100">FloodResQ</p>
             <p className="text-slate-400 text-sm mt-1">Open Source Initiative</p>
           </div>
 
@@ -38,7 +38,7 @@ export function Footer() {
 
         {/* Bottom: Copyright */}
         <div className="text-center text-slate-500 text-xs">
-          <p>© 2024 ReliefOps. Released under MIT License. Made with dedication for disaster relief coordination.</p>
+          <p>© 2024 FloodResQ. Released under MIT License. Made with dedication for disaster relief coordination.</p>
         </div>
       </div>
     </footer>
