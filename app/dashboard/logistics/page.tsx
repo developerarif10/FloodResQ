@@ -1,23 +1,104 @@
 "use client";
 
 import {
-    AlertTriangle,
-    ArrowUpDown,
-    CheckCircle,
-    CheckSquare,
-    ChevronDown,
-    Eye,
-    Home,
-    Layers,
-    Minus,
-    Package,
-    Plus,
-    ShieldAlert,
-    Ship,
-    Truck,
-    XCircle,
+  Map,
+  MapControls,
+  MapMarker,
+  MapRoute,
+  MarkerContent,
+  MarkerPopup,
+  useMap
+} from "@/components/ui/map";
+import {
+  AlertTriangle,
+  ArrowUpDown,
+  CheckCircle,
+  CheckSquare,
+  ChevronDown,
+  Eye,
+  Home,
+  Package,
+  ShieldAlert,
+  Ship,
+  Truck,
+  XCircle
 } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+
+// Custom component to render the Flooded Zone Polygon
+function FloodedZoneLayer() {
+  const { map, isLoaded } = useMap();
+  
+  useEffect(() => {
+    if (!map || !isLoaded) return;
+    
+    const sourceId = 'flooded-zone-source';
+    const layerId = 'flooded-zone-layer';
+    const outlineId = 'flooded-zone-outline';
+
+    // Add Source
+    if (!map.getSource(sourceId)) {
+        map.addSource(sourceId, {
+            type: 'geojson',
+            data: {
+                type: 'Feature',
+                properties: {},
+                geometry: {
+                    type: 'Polygon',
+                    coordinates: [[
+                        [91.42, 22.95],
+                        [91.48, 22.94],
+                        [91.46, 22.90],
+                        [91.40, 22.92],
+                        [91.42, 22.95]
+                    ]]
+                }
+            }
+        });
+    }
+
+    // Add Fill Layer
+    if (!map.getLayer(layerId)) {
+        map.addLayer({
+            id: layerId,
+            type: 'fill',
+            source: sourceId,
+            paint: {
+                'fill-color': '#ef4444', 
+                'fill-opacity': 0.1
+            }
+        });
+    }
+
+    // Add Outline Layer
+    if (!map.getLayer(outlineId)) {
+         map.addLayer({
+            id: outlineId,
+            type: 'line',
+            source: sourceId,
+            paint: {
+                'line-color': '#ef4444',
+                'line-width': 1,
+                'line-dasharray': [4, 2],
+                'line-opacity': 0.5
+            }
+        });
+    }
+
+    return () => {
+        if (!map) return;
+        try {
+            if (map.getLayer(outlineId)) map.removeLayer(outlineId);
+            if (map.getLayer(layerId)) map.removeLayer(layerId);
+            if (map.getSource(sourceId)) map.removeSource(sourceId);
+        } catch (e) {
+            console.error("Error removing flooded zone layer:", e);
+        }
+    };
+  }, [map, isLoaded]);
+
+  return null;
+}
 
 export default function LogisticsPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -232,56 +313,95 @@ export default function LogisticsPage() {
       </div>
 
       {/* Right Panel: Interactive Map (65%) */}
-      <div className="flex-1 bg-slate-100 relative overflow-hidden map-bg group">
-        <style jsx>{`
-          .map-bg {
-            background-color: #f3f4f6;
-            background-image: radial-gradient(#e5e7eb 1px, transparent 1px),
-              radial-gradient(#e5e7eb 1px, transparent 1px);
-            background-position:
-              0 0,
-              20px 20px;
-            background-size: 40px 40px;
-          }
-          @keyframes pulse-ring {
-            0% {
-              transform: scale(0.8);
-              opacity: 0.5;
-            }
-            100% {
-              transform: scale(2.4);
-              opacity: 0;
-            }
-          }
-          .pulse-ring::before {
-            content: "";
-            position: absolute;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            border-radius: 50%;
-            background-color: inherit;
-            animation: pulse-ring 2s cubic-bezier(0.215, 0.61, 0.355, 1)
-              infinite;
-            z-index: -1;
-          }
-        `}</style>
-        {/* Map Controls */}
-        <div className="absolute top-4 right-4 flex flex-col gap-2 z-20">
-          <button className="h-8 w-8 bg-white border border-slate-200 rounded shadow-sm text-slate-600 flex items-center justify-center hover:text-slate-900">
-            <Plus size={20} />
-          </button>
-          <button className="h-8 w-8 bg-white border border-slate-200 rounded shadow-sm text-slate-600 flex items-center justify-center hover:text-slate-900">
-            <Minus size={20} />
-          </button>
-          <button className="h-8 w-8 bg-white border border-slate-200 rounded shadow-sm text-slate-600 flex items-center justify-center hover:text-slate-900 mt-2">
-            <Layers size={20} />
-          </button>
-        </div>
+      <div className="flex-1 bg-slate-100 relative overflow-hidden group">
+        <Map
+          center={[91.399, 22.95]} 
+          zoom={10.5}
+          className="w-full h-full"
+          theme="light"
+        >
+          <MapControls />
+          
+          <FloodedZoneLayer />
 
-        {/* Map Legend */}
-        <div className="absolute bottom-4 left-4 bg-white/90 backdrop-blur border border-slate-200 rounded p-3 shadow-sm z-20 max-w-xs">
+          {/* Truck Route: Dashed Green Line */}
+          <MapRoute 
+            coordinates={[
+              [91.35, 23.00], // Start near Feni
+              [91.38, 22.98],
+              [91.42, 22.95], // Towards destination
+            ]}
+            color="#10b981"
+            width={4}
+            dashArray={[2, 2]}
+          />
+
+          {/* Warehouse: Feni Central Hub */}
+          <MapMarker longitude={91.35} latitude={23.00}>
+            <MarkerContent>
+              <div className="relative flex items-center justify-center w-8 h-8 rounded-full bg-blue-600 text-white shadow-lg shadow-blue-900/20 z-10 border-2 border-white">
+                <Home size={16} />
+              </div>
+            </MarkerContent>
+            <MarkerPopup>
+              <div className="text-xs font-semibold text-slate-900">Feni Central Hub</div>
+            </MarkerPopup>
+          </MapMarker>
+
+          {/* Truck: En Route (T-405) */}
+          <MapMarker longitude={91.385} latitude={22.975}>
+            <MarkerContent>
+              <div className="relative">
+                <div className="w-8 h-8 rounded-full bg-slate-900 text-white flex items-center justify-center shadow-lg relative z-10">
+                  <Truck size={16} />
+                </div>
+                 <div className="absolute -top-6 left-1/2 -translate-x-1/2 bg-slate-900 text-white text-[9px] font-mono py-0.5 px-1.5 rounded opacity-90 whitespace-nowrap">
+                  T-405
+                </div>
+              </div>
+            </MarkerContent>
+             <MarkerPopup>
+              <div className="text-xs font-semibold text-slate-900">Truck T-405</div>
+              <div className="text-[10px] text-slate-500">En Route • 15m ETA</div>
+            </MarkerPopup>
+          </MapMarker>
+
+           {/* Critical Request: Flooded Area (#902) */}
+          <MapMarker longitude={91.45} latitude={22.92}>
+            <MarkerContent>
+              <div className="relative">
+                <div className="w-8 h-8 rounded-full bg-red-100 border-2 border-red-500 text-red-600 flex items-center justify-center shadow-md animate-bounce">
+                  <AlertTriangle size={18} />
+                </div>
+                <div className="absolute top-full mt-1 left-1/2 -translate-x-1/2 px-2 py-0.5 bg-white border border-red-100 rounded text-[10px] font-medium text-red-700 shadow-sm whitespace-nowrap">
+                  Req #902
+                </div>
+              </div>
+            </MarkerContent>
+             <MarkerPopup>
+               <div className="text-xs font-semibold text-red-700">Critical Request #902</div>
+               <div className="text-[10px] text-slate-600">Flooded • Boat Required</div>
+            </MarkerPopup>
+          </MapMarker>
+
+          {/* Boat: Unloading (S-02) */}
+          <MapMarker longitude={91.48} latitude={22.88}>
+             <MarkerContent>
+              <div className="relative">
+                <div className="w-8 h-8 rounded-full bg-cyan-500 border-2 border-white text-white flex items-center justify-center shadow-lg">
+                  <Ship size={16} />
+                </div>
+                <div className="absolute top-full mt-1 left-1/2 -translate-x-1/2 px-2 py-0.5 bg-white border border-cyan-100 rounded text-[10px] font-medium text-cyan-700 shadow-sm whitespace-nowrap">
+                  S-02 (Unloading)
+                </div>
+              </div>
+            </MarkerContent>
+          </MapMarker>
+
+        </Map>
+
+        {/* Map Legend (Overlay) */}
+        <div className="absolute bottom-4 left-4 bg-white/90 backdrop-blur border border-slate-200 rounded p-3 shadow-sm z-20 max-w-xs pointer-events-auto">
           <h4 className="text-xs font-semibold text-slate-900 mb-2">
             Live Map Layers
           </h4>
@@ -293,110 +413,19 @@ export default function LogisticsPage() {
               </span>
             </div>
             <div className="flex items-center gap-2">
-              <div className="w-3 h-3 bg-blue-500 rounded-full border-2 border-white shadow-sm"></div>
+               <div className="w-3 h-3 bg-blue-500 rounded-full border-2 border-white shadow-sm"></div>
               <span className="text-[10px] text-slate-600">
                 Central Warehouse (Feni)
               </span>
             </div>
             <div className="flex items-center gap-2">
-              <Truck className="text-amber-600" size={12} />
+               <Truck className="text-amber-600" size={12} />
               <span className="text-[10px] text-slate-600">Active Fleet</span>
             </div>
-          </div>
-        </div>
-
-        {/* Simulated SVG Map Elements */}
-        <svg
-          className="absolute inset-0 w-full h-full pointer-events-none"
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          {/* Roads (Simulated Paths) */}
-          <path
-            d="M-100 200 Q 300 150 500 400 T 1200 600"
-            fill="none"
-            stroke="#cbd5e1"
-            strokeWidth="6"
-          ></path>
-          <path
-            d="M400 -100 L 450 300 L 800 500 L 900 900"
-            fill="none"
-            stroke="#cbd5e1"
-            strokeWidth="6"
-          ></path>
-          <path
-            d="M200 800 Q 500 500 600 200"
-            fill="none"
-            stroke="#cbd5e1"
-            strokeWidth="4"
-          ></path>
-
-          {/* Flooded Zone (Polygon) */}
-          <polygon
-            points="600,200 900,150 1100,400 850,550"
-            fill="rgba(239, 68, 68, 0.1)"
-            stroke="rgba(239, 68, 68, 0.3)"
-            strokeWidth="1"
-            strokeDasharray="4 2"
-          ></polygon>
-          <text
-            x="750"
-            y="300"
-            className="text-[10px] font-mono fill-red-600 opacity-60 uppercase tracking-widest"
-            textAnchor="middle"
-          >
-            Flooded Zone
-          </text>
-
-          {/* Active Route: Dashed Green Line for Truck */}
-          <path
-            d="M450 300 L 600 350 L 700 320"
-            fill="none"
-            stroke="#10b981"
-            strokeWidth="2"
-            strokeDasharray="6 4"
-            className="opacity-80"
-          ></path>
-        </svg>
-
-        {/* Map Markers (Absolute HTML Elements) */}
-
-        {/* Warehouse: Feni Central */}
-        <div className="absolute top-[35%] left-[30%] -translate-x-1/2 -translate-y-1/2 z-10 flex flex-col items-center">
-          <div className="relative flex items-center justify-center w-8 h-8 rounded-full bg-blue-600 text-white shadow-lg shadow-blue-900/20 z-10 border-2 border-white">
-            <Home size={16} />
-          </div>
-          <div className="mt-1 px-2 py-0.5 bg-white border border-slate-200 rounded text-[10px] font-semibold text-slate-900 shadow-sm whitespace-nowrap">
-            Feni Central Hub
-          </div>
-        </div>
-
-        {/* Truck: En Route */}
-        <div className="absolute top-[40%] left-[45%] z-10 flex flex-col items-center transition-all duration-[5000ms] ease-linear">
-          <div className="pulse-ring w-8 h-8 rounded-full bg-slate-900 text-white flex items-center justify-center shadow-lg z-10 relative">
-            <Truck size={16} />
-          </div>
-          <div className="absolute -top-6 bg-slate-900 text-white text-[9px] font-mono py-0.5 px-1.5 rounded opacity-90 whitespace-nowrap">
-            T-405
-          </div>
-        </div>
-
-        {/* Critical Request: Flooded Area */}
-        <div className="absolute top-[25%] left-[65%] z-10 flex flex-col items-center">
-          <div className="w-8 h-8 rounded-full bg-red-100 border-2 border-red-500 text-red-600 flex items-center justify-center shadow-md animate-bounce">
-            <AlertTriangle size={18} />
-          </div>
-          <div className="mt-1 px-2 py-0.5 bg-white border border-red-100 rounded text-[10px] font-medium text-red-700 shadow-sm whitespace-nowrap">
-            Req #902
-          </div>
-        </div>
-
-        {/* Boat: Unloading */}
-        <div className="absolute bottom-[20%] right-[15%] z-10 flex flex-col items-center">
-          <div className="w-8 h-8 rounded-full bg-cyan-500 border-2 border-white text-white flex items-center justify-center shadow-lg">
-            <Ship size={16} />
-          </div>
-          <div className="mt-1 px-2 py-0.5 bg-white border border-cyan-100 rounded text-[10px] font-medium text-cyan-700 shadow-sm whitespace-nowrap">
-            S-02 (Unloading)
+            <div className="flex items-center gap-2">
+                <div className="w-4 h-0.5 bg-emerald-500 border-dashed border-t border-emerald-500"></div>
+                <span className="text-[10px] text-slate-600">Active Route</span>
+            </div>
           </div>
         </div>
       </div>

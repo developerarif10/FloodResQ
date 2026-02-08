@@ -53,7 +53,7 @@ export default function ActionPage() {
             <select className="appearance-none bg-white border border-slate-200 rounded px-3 py-2 w-full text-sm text-slate-900 focus:outline-none focus:border-slate-900 h-12">
               <option>Select Relief Item...</option>
               <option>Dry Food (Chira/Gur)</option>
-              <option selected>Drinking Water (5L)</option>
+              <option value>Drinking Water (5L)</option>
               <option>ORS Saline</option>
               <option>Water Purification Tablets</option>
               <option>Tarpaulins</option>
