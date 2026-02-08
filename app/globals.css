@@ -2,11 +2,16 @@
 @tailwind components;
 @tailwind utilities;
 
-
 @layer base {
   :root {
     --background: 0 0% 100%;
     --foreground: 222.2 84% 4.9%;
+  }
+  .maplibregl-popup-content {
+    @apply bg-transparent! shadow-none! p-0! rounded-none!;
+  }
+  .maplibregl-popup-tip {
+    @apply hidden!;
   }
 }
 
@@ -34,4 +39,3 @@ body {
 .input-base {
   @apply appearance-none bg-white border border-slate-200 rounded px-3 py-2 w-full text-sm text-slate-900 focus:outline-none focus:border-slate-900 transition-colors;
 }
-
